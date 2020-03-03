@@ -6,6 +6,8 @@ from sklearn.cluster import KMeans
 import bfr
 from sklearn.manifold import TSNE
 from sklearn.metrics import accuracy_score
+from sklearn.mixture import GaussianMixture as expectationMaximization
+from sklearn.cluster import DBSCAN
 
 
 lisstd=[]
@@ -41,6 +43,27 @@ def Cure(input_data,n):
     print("ACC: " + str(accuracy_score(pred, labels)))
     acc["CURE" + str(n)]= str(accuracy_score(pred, labels))
     tsnePlot(pred, n, input_data, 'CURE')
+
+#EXpectation Mximization implementation
+def ExpectationMMaximization(Mat,n):
+    exp_instance = expectationMaximization(n_components=n)  # also test with affinity ="cosine"
+    exp_instance.fit(Mat)
+    pred = exp_instance.predict(Mat)
+    print(pred)
+    print("ACC: " + str(accuracy_score(pred, labels)))
+    acc["EXP" + str(n)] = str(accuracy_score(pred, labels))
+    tsnePlot(pred, n, Mat, 'EXP')
+
+
+def dbscan(Mat,n):
+    exp_instance = DBSCAN(min_samples=n)  # also test with affinity ="cosine"
+    exp_instance.fit(Mat)
+    pred = exp_instance.labels_
+    print(pred)
+    print("ACC: " + str(accuracy_score(pred, labels)))
+    acc["EXP" + str(n)] = str(accuracy_score(pred, labels))
+    tsnePlot(pred, n, Mat, 'EXP')
+
 
 #kmeans implemenation
 def kmeans(X,n):
@@ -144,6 +167,7 @@ if __name__ == '__main__':
     matrix = pd.read_csv("features_Modified.csv", delimiter=',', header= None)
     labels = pd.read_csv('labels(1VT-0LP).csv',header=None)
 
+    '''
     #Starting BFR tests
     print("BFR TEST:\n")
     for i in range(2,11):
@@ -157,6 +181,11 @@ if __name__ == '__main__':
     print("CURE  TEST:\n")
     for i in range(2, 11):
         Cure(matrix, i)
+    '''
+    # Start Cure test
+    print("EXPECTATION MAXIMIZATION  TEST:\n")
+    for i in range(2, 11):
+        ExpectationMMaximization(matrix, i)
     #subprocess.call("python3 Cure.py ", shell=True)
 
     print(acc)
