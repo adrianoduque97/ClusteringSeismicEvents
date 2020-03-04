@@ -8,6 +8,7 @@ from sklearn.manifold import TSNE
 from sklearn.metrics import accuracy_score
 from sklearn.mixture import GaussianMixture as expectationMaximization
 from sklearn.cluster import DBSCAN
+from sklearn.cluster import MeanShift
 
 # Complement Lists used to manage the data
 lisstd=[]
@@ -58,14 +59,23 @@ def ExpectationMMaximization(Mat,n):
 
 # dbscan implemenation
 def dbscan(Mat,n):
-    exp_instance = DBSCAN(min_samples=n)
-    exp_instance.fit(Mat)
-    pred = exp_instance.labels_
+    db_instance = DBSCAN(min_samples=n)
+    db_instance.fit(Mat)
+    pred = db_instance.labels_
     print(pred)
     print("ACC: " + str(accuracy_score(pred, labels)))
-    acc["EXP" + str(n)] = str(accuracy_score(pred, labels))
-    tsnePlot(pred, n, Mat, 'EXP')
+    acc["DB" + str(n)] = str(accuracy_score(pred, labels))
+    tsnePlot(pred, n, Mat, 'DB')
 
+# Meanshift implemenation
+def meanshift(Mat,n):
+    mean_instance = MeanShift(seeds=n)
+    mean_instance.fit(Mat)
+    pred = mean_instance.labels_
+    print(pred)
+    print("ACC: " + str(accuracy_score(pred, labels)))
+    acc["MEAN" + str(n)] = str(accuracy_score(pred, labels))
+    tsnePlot(pred, n, Mat, 'MEAN')
 
 #kmeans implemenation
 def kmeans(X,n):
