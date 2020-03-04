@@ -15,7 +15,7 @@ listDis=[]
 distK=[]
 distS=[]
 acc={}
-# Lists used to plot the TSNE
+# Lists used to plot the TSNE 2 teg
 colors = ['r', 'g', 'b', 'c', 'm', 'y', 'k', 'grey', 'orange', 'purple']
 markers = ['o','^','s','.', ',', 'x', '+', 'v', 'd','>']
 
