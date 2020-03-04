@@ -9,17 +9,18 @@ from sklearn.metrics import accuracy_score
 from sklearn.mixture import GaussianMixture as expectationMaximization
 from sklearn.cluster import DBSCAN
 
-
+# Complement Lists used to manage the data
 lisstd=[]
 listDis=[]
 distK=[]
 distS=[]
 acc={}
+# Lists used to plot the TSNE
 colors = ['r', 'g', 'b', 'c', 'm', 'y', 'k', 'grey', 'orange', 'purple']
 markers = ['o','^','s','.', ',', 'x', '+', 'v', 'd','>']
 
 
-
+# Method to plot the original data with NO CLUSTERS
 def tsneG(X):
     tsne = TSNE(n_components=2, random_state=0)
     X_2d = tsne.fit_transform(X)
@@ -35,6 +36,7 @@ def tsneG(X):
     plt.savefig("raw.png")
     plt.close()
 
+# Cure implementation
 def Cure(input_data,n):
     cure_instance = cure(n_clusters=n, linkage="average", affinity="euclidean")  #also test with affinity ="cosine"
     cure_instance.fit(input_data)
@@ -46,7 +48,7 @@ def Cure(input_data,n):
 
 #EXpectation Mximization implementation
 def ExpectationMMaximization(Mat,n):
-    exp_instance = expectationMaximization(n_components=n)  # also test with affinity ="cosine"
+    exp_instance = expectationMaximization(n_components=n)
     exp_instance.fit(Mat)
     pred = exp_instance.predict(Mat)
     print(pred)
@@ -54,9 +56,9 @@ def ExpectationMMaximization(Mat,n):
     acc["EXP" + str(n)] = str(accuracy_score(pred, labels))
     tsnePlot(pred, n, Mat, 'EXP')
 
-
+# dbscan implemenation
 def dbscan(Mat,n):
-    exp_instance = DBSCAN(min_samples=n)  # also test with affinity ="cosine"
+    exp_instance = DBSCAN(min_samples=n)
     exp_instance.fit(Mat)
     pred = exp_instance.labels_
     print(pred)
@@ -84,10 +86,11 @@ def dendogram(Mat):
     plt.show()
     plt.close()
 
-
-def BFR(Mat,n):
+# BFR implementation
+# based on the code: https://github.com/jeppeb91/bfr
+def BFR(Mat,n,shape):
     model = bfr.Model(mahalanobis_factor=3.0, euclidean_threshold=3.0,
-                      merge_threshold=2.0, dimensions=83,
+                      merge_threshold=2.0, dimensions=shape, #Numer of dimensions must be defined as the number of columns of the data
                       init_rounds=40, nof_clusters=n)
 
     Mat = Mat.to_numpy()
@@ -119,6 +122,13 @@ def BFR(Mat,n):
     tsnePlot(pred,n,Mat,'BFR')
 
 
+''' 
+Method that uses TSNE to plot the clustered data
+pred -> Labels predicted
+n -> number of clusters
+Mat-> original matrix of data
+alg -> algorith used
+'''
 
 def tsnePlot(pred, n,Mat,alg):
     tsne = TSNE(n_components=2, random_state=0)
@@ -167,11 +177,11 @@ if __name__ == '__main__':
     matrix = pd.read_csv("features_Modified.csv", delimiter=',', header= None)
     labels = pd.read_csv('labels(1VT-0LP).csv',header=None)
 
-    '''
+
     #Starting BFR tests
     print("BFR TEST:\n")
     for i in range(2,11):
-        BFR(matrix, i)    
+        BFR(matrix, i, matrix.shape[1])
     #Start kmenas Test
     print("K MEANS  TEST:\n")
     for i in range(2, 11):
@@ -181,8 +191,8 @@ if __name__ == '__main__':
     print("CURE  TEST:\n")
     for i in range(2, 11):
         Cure(matrix, i)
-    '''
-    # Start Cure test
+
+    # Start Exp. Max test
     print("EXPECTATION MAXIMIZATION  TEST:\n")
     for i in range(2, 11):
         ExpectationMMaximization(matrix, i)
