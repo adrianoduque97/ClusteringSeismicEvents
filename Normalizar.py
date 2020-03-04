@@ -7,8 +7,8 @@ class Normalizar:
     data = []
     inputFile = ""
     outputFileName = ""
-    min = 100000
-    max = -100000
+    min = math.inf
+    max = -math.inf
 
     def __init__(self) -> None:
         super().__init__()
