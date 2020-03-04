@@ -178,7 +178,7 @@ if __name__ == '__main__':
     labels = pd.read_csv('labels(1VT-0LP).csv',header=None)
 
 
-    #Starting BFR tests
+    #Starting BFR tests so branch new test
     print("BFR TEST:\n")
     for i in range(2,11):
         BFR(matrix, i, matrix.shape[1])
