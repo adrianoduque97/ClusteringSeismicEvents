@@ -188,7 +188,7 @@ def tsnePlot(pred, n, Mat, alg):
     for i, c, m in zip(klus, colors, markers):
         plt.scatter(X_2d[pred == i, 0], X_2d[pred == i, 1], marker=m, c=c, label=i)
 
-    plt.savefig(path+"Clusters" + alg + str(n) + ".png")
+    plt.savefig(path+"/images/Clusters" + alg + str(n) + ".png")
     # plt.show()
     plt.close()
 
@@ -225,6 +225,7 @@ if __name__ == '__main__':
 
     matrix = pd.read_csv("features_Modified.csv", delimiter=',', header=None)
     labels = pd.read_csv('labels(1VT-0LP).csv', header=None)
+    print(path)
 
     # Starting BFR tests so branch new test
     print("BFR TEST:\n")
