@@ -24,7 +24,8 @@ acc = {}
 colors = ['r', 'g', 'b', 'c', 'm', 'y', 'k', 'grey', 'orange', 'purple']
 markers = ['o', '^', 's', '.', ',', 'x', '+', 'v', 'd', '>']
 
-#path for images
+#path for images just test chamges
+
 path = str(Path(os.getcwd()))
 
 
