@@ -23,9 +23,10 @@ acc = {}
 # Lists used to plot the TSNE 2 teg
 colors = ['r', 'g', 'b', 'c', 'm', 'y', 'k', 'grey', 'orange', 'purple']
 markers = ['o', '^', 's', '.', ',', 'x', '+', 'v', 'd', '>']
-
-#path for images just test chamges
-
+# birchBranching = 0
+# birchThreshold = 0
+# birchMaxAcc = 0
+#path for images
 path = str(Path(os.getcwd()))
 
 
@@ -68,7 +69,7 @@ def ExpectationMMaximization(Mat, n):
     tsnePlot(pred, n, Mat, 'EXP')
 
 
-# dbscan implemenation
+# dbscan implemenation - no reciben k de input
 def dbscan(Mat, n):
     db_instance = DBSCAN(min_samples=n)
     db_instance.fit(Mat)
@@ -79,7 +80,7 @@ def dbscan(Mat, n):
     tsnePlot(pred, n, Mat, 'DB')
 
 
-# Meanshift implemenation
+# Meanshift implemenation - no reciben k de input
 def meanshift(Mat, n):
     mean_instance = MeanShift(seeds=n)
     mean_instance.fit(Mat)
@@ -113,12 +114,19 @@ def spect(input_data, n):
     tsnePlot(pred, n, input_data, 'SPECT')
 
 # birch implementation
-def birch(input_data, n):
-    feat_instance = Birch(n_clusters=n)
+def birch(input_data, n, limite, branching):
+    # global birchMaxAcc
+    # global birchThreshold
+    # global birchBranching
+    feat_instance = Birch(n_clusters=n,threshold=limite,branching_factor=branching)
     feat_instance.fit(input_data)
     pred= feat_instance.labels_
-
     print(pred)
+    # currentAcc = accuracy_score(pred, labels)
+    # if n == 2 and birchMaxAcc<currentAcc:
+    #     birchThreshold=limite
+    #     birchBranching = branching
+    #     birchMaxAcc=currentAcc
     print("ACC: " + str(accuracy_score(pred, labels)))
     acc["BIRCH" + str(n)] = str(accuracy_score(pred, labels))
     tsnePlot(pred, n, input_data, 'BIRCH ')
@@ -227,7 +235,7 @@ if __name__ == '__main__':
     matrix = pd.read_csv("features_Modified.csv", delimiter=',', header=None)
     labels = pd.read_csv('labels(1VT-0LP).csv', header=None)
     print(path)
-    ''''
+
     # Starting BFR tests so branch new test
     print("BFR TEST:\n")
     for i in range(2, 11):
@@ -241,7 +249,7 @@ if __name__ == '__main__':
     print("CURE  TEST:\n")
     for i in range(2, 11):
         Cure(matrix, i)
-    '''
+
     # Start Exp. Max test
     print("EXPECTATION MAXIMIZATION  TEST:\n")
     for i in range(2, 11):
@@ -253,8 +261,17 @@ if __name__ == '__main__':
 
     # Start Birch test
     print("BIRCH  TEST:\n")
-    for i in range(2, 11):
-        birch(matrix, i)
-    # subprocess.call("python3 Cure.py ", shell=True)
+    #testing para encontrar los mejores hiperparametros de birch a fuerza bruta.
+    # for branch in range(2,100):
+    #     #for i in range(2, 11):
+    #     for thresh in range (0,100):
+    #         for i in range(2, 3):
+    #             birch(matrix, i,thresh/100,branch)
 
+    for i in range(2, 11):
+        #mejores hiperparametros para birch
+        birch(matrix, i, 0.75, 53)
+    # subprocess.call("python3 Cure.py ", shell=True)
+    #print(birchMaxAcc,birchBranching,birchThreshold)
     print(acc)
+    print("hello world")
