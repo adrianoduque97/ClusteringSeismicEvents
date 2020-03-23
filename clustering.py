@@ -227,7 +227,7 @@ if __name__ == '__main__':
     matrix = pd.read_csv("features_Modified.csv", delimiter=',', header=None)
     labels = pd.read_csv('labels(1VT-0LP).csv', header=None)
     print(path)
-
+    ''''
     # Starting BFR tests so branch new test
     print("BFR TEST:\n")
     for i in range(2, 11):
@@ -241,7 +241,7 @@ if __name__ == '__main__':
     print("CURE  TEST:\n")
     for i in range(2, 11):
         Cure(matrix, i)
-
+    '''
     # Start Exp. Max test
     print("EXPECTATION MAXIMIZATION  TEST:\n")
     for i in range(2, 11):
