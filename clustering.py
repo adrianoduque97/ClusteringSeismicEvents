@@ -46,6 +46,17 @@ def tsneG(X):
     plt.savefig("raw.png")
     plt.close()
 
+#Optimization implementation that test inverted matrix
+def OptimizeInverse(pred):
+    a = accuracy_score(pred, labels)
+    b = accuracy_score(pred, labelsi)
+    if a<b:
+        pred[pred == 0] = 12
+        pred[pred == 1] = 0
+        pred[pred == 12] = 1
+        return pred,b
+    else:
+        return pred,a
 
 # Cure implementation
 def Cure(input_data, n):
@@ -60,14 +71,16 @@ def Cure(input_data, n):
 
 # EXpectation Mximization implementation
 def ExpectationMMaximization(Mat, n):
-    exp_instance = expectationMaximization(n_components=n)
-    exp_instance.fit(Mat)
-    pred = exp_instance.predict(Mat)
-    print(pred)
-    print("ACC: " + str(accuracy_score(pred, labels)))
-    acc["EXP" + str(n)] = str(accuracy_score(pred, labels))
-    tsnePlot(pred, n, Mat, 'EXP')
+    exp_instance = expectationMaximization(n_components=n, covariance_type="tied",max_iter=1500,
+                                           tol=1e-6,reg_covar=1e-9,init_params="random",warm_start=False,
+                                           random_state=25)
 
+    pred = exp_instance.fit_predict(Mat)
+    pred= OptimizeInverse(pred)
+    print(pred[0])
+    print("ACC: " + str((pred[1])))
+    acc["EXP" + str(n)] = str((pred[1]))
+    tsnePlot(pred[0], n, Mat, 'EXP')
 
 # dbscan implemenation - no reciben k de input
 def dbscan(Mat, n):
@@ -105,10 +118,15 @@ def kmeans(X, n):
 
 # spectarl implementation
 def spect(input_data, n):
-    spec_instance = SpectralCoclustering(n_clusters=n)
+    t=0
+    d=0
+    #for a in range(0,9):
+    spec_instance = SpectralCoclustering(n_clusters=n,#svd_method='arpack',n_svd_vecs=100,
+                                         init="random",n_init=20, n_jobs=2,random_state=0)
     spec_instance.fit(input_data)
     pred = spec_instance.row_labels_
     print(pred)
+
     print("ACC: " + str(accuracy_score(pred, labels)))
     acc["SPECT" + str(n)] = str(accuracy_score(pred, labels))
     tsnePlot(pred, n, input_data, 'SPECT')
@@ -234,6 +252,7 @@ if __name__ == '__main__':
 
     matrix = pd.read_csv("features_Modified.csv", delimiter=',', header=None)
     labels = pd.read_csv('labels(1VT-0LP).csv', header=None)
+    labelsi=pd.read_csv('labels(1VT-0LP)INV.csv',header=None)
     print(path)
 
     # Starting BFR tests so branch new test
@@ -249,11 +268,12 @@ if __name__ == '__main__':
     print("CURE  TEST:\n")
     for i in range(2, 11):
         Cure(matrix, i)
-
+    
     # Start Exp. Max test
     print("EXPECTATION MAXIMIZATION  TEST:\n")
     for i in range(2, 11):
         ExpectationMMaximization(matrix, i)
+
     # Start Spectral test
     print("SPECT  TEST:\n")
     for i in range(2, 11):
@@ -273,5 +293,5 @@ if __name__ == '__main__':
         birch(matrix, i, 0.75, 53)
     # subprocess.call("python3 Cure.py ", shell=True)
     #print(birchMaxAcc,birchBranching,birchThreshold)
+
     print(acc)
-    print("This is TestingKG Branch!")
