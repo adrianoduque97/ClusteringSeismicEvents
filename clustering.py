@@ -47,15 +47,17 @@ def tsneG(X):
     plt.close()
 
 #Optimization implementation that test inverted matrix
-def OptimizeInverse(pred):
+def OptimizeInverse(pred, n1, n2):
     a = accuracy_score(pred, labels)
     b = accuracy_score(pred, labelsi)
     if a<b:
-        pred[pred == 0] = 12
-        pred[pred == 1] = 0
-        pred[pred == 12] = 1
+        pred[pred == n1] = 12
+        pred[pred == n2] = n1
+        pred[pred == 12] = n2
+        #b = accuracy_score(pred, labels)
         return pred,b
     else:
+        #a = accuracy_score(pred, labels)
         return pred,a
 
 # Cure implementation
@@ -76,7 +78,7 @@ def ExpectationMMaximization(Mat, n):
                                            random_state=25)
 
     pred = exp_instance.fit_predict(Mat)
-    pred= OptimizeInverse(pred)
+    pred= OptimizeInverse(pred,0,1)
     print(pred[0])
     print("ACC: " + str((pred[1])))
     acc["EXP" + str(n)] = str((pred[1]))
@@ -123,11 +125,12 @@ def spect(input_data, n):
     spec_instance = SpectralClustering(n_clusters=n,random_state=3107,affinity='nearest_neighbors',n_neighbors=20,n_components=16)
     spec_instance.fit(input_data)
     pred = spec_instance.labels_
-    print(pred)
+    pred = OptimizeInverse(pred,0,1)
+    print (pred[0])
+    print("ACC: " + str((pred[1])))
+    acc["SPECT" + str(n)] = str((pred[1]))
+    tsnePlot(pred[0], n, input_data, 'SPECT')
 
-    print("ACC: " + str(accuracy_score(pred, labels)))
-    acc["SPECT" + str(n)] = str(accuracy_score(pred, labels))
-    tsnePlot(pred, n, input_data, 'SPECT')
 
 # birch implementation
 def birch(input_data, n, limite, branching):
@@ -137,15 +140,16 @@ def birch(input_data, n, limite, branching):
     feat_instance = Birch(n_clusters=n,threshold=limite,branching_factor=branching)
     feat_instance.fit(input_data)
     pred= feat_instance.labels_
-    print(pred)
-    # currentAcc = accuracy_score(pred, labels)
-    # if n == 2 and birchMaxAcc<currentAcc:
-    #     birchThreshold=limite
-    #     birchBranching = branching
-    #     birchMaxAcc=currentAcc
-    print("ACC: " + str(accuracy_score(pred, labels)))
-    acc["BIRCH" + str(n)] = str(accuracy_score(pred, labels))
-    tsnePlot(pred, n, input_data, 'BIRCH ')
+    # # currentAcc = accuracy_score(pred, labels)
+    # # if n == 2 and birchMaxAcc<currentAcc:
+    # #     birchThreshold=limite
+    # #     birchBranching = branching
+    # #     birchMaxAcc=currentAcc
+    pred = OptimizeInverse(pred, 0, 1)
+    print(pred[0])
+    print("ACC: " + str((pred[1])))
+    acc["BIRCH" + str(n)] = str((pred[1]))
+    tsnePlot(pred[0], n, input_data, 'BIRCH')
 
 
 # Generate dendoram plot
@@ -271,7 +275,7 @@ if __name__ == '__main__':
     print("EXPECTATION MAXIMIZATION  TEST:\n")
     for i in range(2, 11):
         ExpectationMMaximization(matrix, i)
-
+    
     # Start Spectral test
     print("SPECT  TEST:\n")
     for i in range(2, 11):
