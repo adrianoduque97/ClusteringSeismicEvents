@@ -11,7 +11,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.mixture import GaussianMixture as expectationMaximization
 from sklearn.cluster import DBSCAN  # NO SIRVE
 from sklearn.cluster import MeanShift  # NO SIRVE
-from sklearn.cluster import SpectralCoclustering
+from sklearn.cluster import SpectralClustering
 from sklearn.cluster import Birch
 
 # Complement Lists used to manage the data
@@ -114,17 +114,15 @@ def kmeans(X, n):
     print("ACC: \n" + str(accuracy_score(pred, labels)))
     acc['KMeans' + str(n)] = accuracy_score(pred, labels)
     tsnePlot(pred, n, X, 'KMEAN')
-
-
+    
 # spectarl implementation
 def spect(input_data, n):
     t=0
     d=0
-    #for a in range(0,9):
-    spec_instance = SpectralCoclustering(n_clusters=n,#svd_method='arpack',n_svd_vecs=100,
-                                         init="random",n_init=20, n_jobs=2,random_state=0)
+    #random_state = 92% : 292 - 3107  - 4603 - 4634
+    spec_instance = SpectralClustering(n_clusters=n,random_state=3107,affinity='nearest_neighbors',n_neighbors=20,n_components=16)
     spec_instance.fit(input_data)
-    pred = spec_instance.row_labels_
+    pred = spec_instance.labels_
     print(pred)
 
     print("ACC: " + str(accuracy_score(pred, labels)))
