@@ -18,7 +18,6 @@ from sklearn.cluster import MeanShift  # NO SIRVE
 from sklearn.cluster import SpectralClustering
 from sklearn.cluster import Birch
 from pyclustering.cluster.cure import cure
-from pyclustering.cluster import cluster_visualizer_multidim;
 
 # Complement Lists used to manage the data
 lisstd = []
@@ -76,15 +75,6 @@ def Cure(input_data, n):
     print("ACC: " + str(accuracy_score(pred, labels)))
     acc["CURE" + str(n)] = str(accuracy_score(pred, labels))
     tsnePlot(pred, n, input_data, 'CURE')
-
-    # cure_instance = cure(n_clusters=n, linkage="average", affinity="euclidean")  # also test with affinity ="cosine"
-    # cure_instance.fit(input_data)
-    # pred = cure_instance.labels_
-    # print(pred)
-    # print("ACC: " + str(accuracy_score(pred, labels)))
-    # acc["CURE" + str(n)] = str(accuracy_score(pred, labels))
-    # tsnePlot(pred, n, input_data, 'CURE')
-
 
 # EXpectation Mximization implementation
 def ExpectationMMaximization(Mat, n):
