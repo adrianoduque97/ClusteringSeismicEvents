@@ -1,8 +1,12 @@
+import numpy as np
 import pandas as pd
+from pandas import DataFrame
 import matplotlib.pylab as plt
-from sklearn.cluster import AgglomerativeClustering as cure
+#from sklearn.cluster import AgglomerativeClustering as cure
 import scipy.cluster.hierarchy as sch
 from sklearn.cluster import KMeans
+
+import Utils
 import bfr
 import os
 from pathlib import Path
@@ -13,6 +17,8 @@ from sklearn.cluster import DBSCAN  # NO SIRVE
 from sklearn.cluster import MeanShift  # NO SIRVE
 from sklearn.cluster import SpectralClustering
 from sklearn.cluster import Birch
+from pyclustering.cluster.cure import cure
+from pyclustering.cluster import cluster_visualizer_multidim;
 
 # Complement Lists used to manage the data
 lisstd = []
@@ -60,13 +66,24 @@ def OptimizeInverse(pred):
 
 # Cure implementation
 def Cure(input_data, n):
-    cure_instance = cure(n_clusters=n, linkage="average", affinity="euclidean")  # also test with affinity ="cosine"
-    cure_instance.fit(input_data)
-    pred = cure_instance.labels_
-    print(pred)
+    data = []
+    for index in range(len(input_data)):
+        data.append(input_data.iloc[index])
+    cure_instance = cure(number_cluster=n,data=data,number_represent_points=250,compression=0.1)
+    cure_instance.process()
+    clusters = cure_instance.get_clusters()
+    pred = np.array(Utils.toPrediction(clusters))
     print("ACC: " + str(accuracy_score(pred, labels)))
     acc["CURE" + str(n)] = str(accuracy_score(pred, labels))
     tsnePlot(pred, n, input_data, 'CURE')
+
+    # cure_instance = cure(n_clusters=n, linkage="average", affinity="euclidean")  # also test with affinity ="cosine"
+    # cure_instance.fit(input_data)
+    # pred = cure_instance.labels_
+    # print(pred)
+    # print("ACC: " + str(accuracy_score(pred, labels)))
+    # acc["CURE" + str(n)] = str(accuracy_score(pred, labels))
+    # tsnePlot(pred, n, input_data, 'CURE')
 
 
 # EXpectation Mximization implementation
@@ -279,17 +296,8 @@ if __name__ == '__main__':
 
     # Start Birch test
     print("BIRCH  TEST:\n")
-    #testing para encontrar los mejores hiperparametros de birch a fuerza bruta.
-    # for branch in range(2,100):
-    #     #for i in range(2, 11):
-    #     for thresh in range (0,100):
-    #         for i in range(2, 3):
-    #             birch(matrix, i,thresh/100,branch)
-
     for i in range(2, 11):
         #mejores hiperparametros para birch
         birch(matrix, i, 0.75, 53)
-    # subprocess.call("python3 Cure.py ", shell=True)
-    #print(birchMaxAcc,birchBranching,birchThreshold)
 
     print(acc)
