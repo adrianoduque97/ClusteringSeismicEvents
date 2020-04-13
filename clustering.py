@@ -9,8 +9,6 @@ from pathlib import Path
 from sklearn.manifold import TSNE
 from sklearn.metrics import accuracy_score
 from sklearn.mixture import GaussianMixture as expectationMaximization
-from sklearn.cluster import DBSCAN  # NO SIRVE
-from sklearn.cluster import MeanShift  # NO SIRVE
 from sklearn.cluster import SpectralClustering
 from sklearn.cluster import Birch
 
@@ -84,38 +82,16 @@ def ExpectationMMaximization(Mat, n):
     acc["EXP" + str(n)] = str((pred[1]))
     tsnePlot(pred[0], n, Mat, 'EXP')
 
-# dbscan implemenation - no reciben k de input
-def dbscan(Mat, n):
-    db_instance = DBSCAN(min_samples=n)
-    db_instance.fit(Mat)
-    pred = db_instance.labels_
-    print(pred)
-    print("ACC: " + str(accuracy_score(pred, labels)))
-    acc["DB" + str(n)] = str(accuracy_score(pred, labels))
-    tsnePlot(pred, n, Mat, 'DB')
-
-
-# Meanshift implemenation - no reciben k de input
-def meanshift(Mat, n):
-    mean_instance = MeanShift(seeds=n)
-    mean_instance.fit(Mat)
-    pred = mean_instance.labels_
-    print(pred)
-    print("ACC: " + str(accuracy_score(pred, labels)))
-    acc["MEAN" + str(n)] = str(accuracy_score(pred, labels))
-    tsnePlot(pred, n, Mat, 'MEAN')
-
-
 # kmeans implemenation
 def kmeans(X, n):
-    kmeans = KMeans(n_clusters=n, init='k-means++', precompute_distances='auto').fit(X)
+    kmeans = KMeans(n_clusters=n, init='k-means++', precompute_distances='auto', max_iter=1000).fit(X)
     distK.append(kmeans.inertia_)
     pred = kmeans.predict(X)
     print(kmeans.cluster_centers_)
     print(pred)
     print("ACC: \n" + str(accuracy_score(pred, labels)))
     acc['KMeans' + str(n)] = accuracy_score(pred, labels)
-    tsnePlot(pred, n, X, 'KMEAN')
+    #tsnePlot(pred, n, X, 'KMEAN')
     
 # spectarl implementation
 def spect(input_data, n):
@@ -134,17 +110,9 @@ def spect(input_data, n):
 
 # birch implementation
 def birch(input_data, n, limite, branching):
-    # global birchMaxAcc
-    # global birchThreshold
-    # global birchBranching
     feat_instance = Birch(n_clusters=n,threshold=limite,branching_factor=branching)
     feat_instance.fit(input_data)
     pred= feat_instance.labels_
-    # # currentAcc = accuracy_score(pred, labels)
-    # # if n == 2 and birchMaxAcc<currentAcc:
-    # #     birchThreshold=limite
-    # #     birchBranching = branching
-    # #     birchMaxAcc=currentAcc
     pred = OptimizeInverse(pred, 0, 1)
     print(pred[0])
     print("ACC: " + str((pred[1])))
@@ -194,6 +162,14 @@ def BFR(Mat, n, shape):
     print(pred.shape)
     print(model)
     tsnePlot(pred, n, Mat, 'BFR')
+
+# testing for finding best hiperparameters with brute force
+def OptimizationBruteForce():
+    for branch in range(2,100):
+        for i in range(2, 11):
+            for thresh in range(0,100):
+                for i in range(2, 3):
+                    birch(matrix, i,thresh/100,branch)
 
 
 ''' 
@@ -270,12 +246,12 @@ if __name__ == '__main__':
     print("CURE  TEST:\n")
     for i in range(2, 11):
         Cure(matrix, i)
-    
+
     # Start Exp. Max test
     print("EXPECTATION MAXIMIZATION  TEST:\n")
     for i in range(2, 11):
         ExpectationMMaximization(matrix, i)
-    
+
     # Start Spectral test
     print("SPECT  TEST:\n")
     for i in range(2, 11):
@@ -283,17 +259,11 @@ if __name__ == '__main__':
 
     # Start Birch test
     print("BIRCH  TEST:\n")
-    #testing para encontrar los mejores hiperparametros de birch a fuerza bruta.
-    # for branch in range(2,100):
-    #     #for i in range(2, 11):
-    #     for thresh in range (0,100):
-    #         for i in range(2, 3):
-    #             birch(matrix, i,thresh/100,branch)
+
 
     for i in range(2, 11):
-        #mejores hiperparametros para birch
+        #Best hiperparameters for birch
         birch(matrix, i, 0.75, 53)
-    # subprocess.call("python3 Cure.py ", shell=True)
-    #print(birchMaxAcc,birchBranching,birchThreshold)
 
+    #Print of all ACC results
     print(acc)
