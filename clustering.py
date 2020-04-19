@@ -39,8 +39,6 @@ def tsneG(X):
     plt.scatter(dat["x1"], dat["y1"])
     plt.title("Raw data with no clusters")
     plt.grid()
-    fig = plt.gcf()
-    fig.canvas.set_window_title('Project 7')
     plt.savefig("raw.png")
     plt.close()
 
@@ -161,7 +159,8 @@ def BFR(Mat, n, shape):
 
     print(pred.shape)
     print(model)
-    tsnePlot(pred, n, Mat, 'BFR')
+
+    tsnePlot(pred, n, Mat, 'raw')
 
 # testing for finding best hiperparameters with brute force
 def OptimizationBruteForce():
@@ -233,10 +232,14 @@ if __name__ == '__main__':
     labelsi=pd.read_csv('labels(1VT-0LP)INV.csv',header=None)
     print(path)
 
+    #Printing original dataset with original Labels
+    tsnePlot(labels.to_numpy().ravel(),2,matrix.to_numpy(),'raw')
+    '''
     # Starting BFR tests so branch new test
     print("BFR TEST:\n")
     for i in range(2, 11):
         BFR(matrix, i, matrix.shape[1])
+    
     # Start kmenas Test
     print("K MEANS  TEST:\n")
     for i in range(2, 11):
@@ -267,3 +270,4 @@ if __name__ == '__main__':
 
     #Print of all ACC results
     print(acc)
+    '''
