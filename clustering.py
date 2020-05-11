@@ -193,7 +193,6 @@ def tsnePlot(pred, n, Mat, alg):
         plt.scatter(X_2d[pred == i, 0], X_2d[pred == i, 1], marker=m, c=c, label=i)
 
     plt.savefig(path+"/images/Clusters" + alg + str(n) + ".png")
-    # plt.show()
     plt.close()
 
 
@@ -230,11 +229,15 @@ if __name__ == '__main__':
     matrix = pd.read_csv("features_Modified.csv", delimiter=',', header=None)
     labels = pd.read_csv('labels(1VT-0LP).csv', header=None)
     labelsi=pd.read_csv('labels(1VT-0LP)INV.csv',header=None)
+    labels3= pd.read_csv('LABELS3.csv', header=None)
+
     print(path)
 
     #Printing original dataset with original Labels
     tsnePlot(labels.to_numpy().ravel(),2,matrix.to_numpy(),'raw')
-    '''
+    # Printing original dataset with original Labels
+    tsnePlot(labels3.to_numpy().ravel(), 3, matrix.to_numpy(), 'raw')
+
     # Starting BFR tests so branch new test
     print("BFR TEST:\n")
     for i in range(2, 11):
@@ -270,4 +273,3 @@ if __name__ == '__main__':
 
     #Print of all ACC results
     print(acc)
-    '''
