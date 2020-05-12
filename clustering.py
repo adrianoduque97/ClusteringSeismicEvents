@@ -7,7 +7,7 @@ import bfr
 import os
 from pathlib import Path
 from sklearn.manifold import TSNE
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.mixture import GaussianMixture as expectationMaximization
 from sklearn.cluster import SpectralClustering
 from sklearn.cluster import Birch
@@ -18,6 +18,7 @@ listDis = []
 distK = []
 distS = []
 acc = {}
+accBoth={}
 # Lists used to plot the TSNE 2 teg
 colors = ['r', 'g', 'b', 'c', 'm', 'y', 'k', 'grey', 'orange', 'purple']
 markers = ['o', '^', 's', '.', ',', 'x', '+', 'v', 'd', '>']
@@ -64,7 +65,11 @@ def Cure(input_data, n):
     print(pred)
     print("ACC: " + str(accuracy_score(pred, labels)))
     acc["CURE" + str(n)] = str(accuracy_score(pred, labels))
-    tsnePlot(pred, n, input_data, 'CURE')
+
+    valLP, valVt = confusionMatrix(pred, labels)
+    accBoth['CURE' + str(n)] = (valVt, valLP)
+
+    #tsnePlot(pred, n, input_data, 'CURE')
 
 
 # EXpectation Mximization implementation
@@ -78,7 +83,11 @@ def ExpectationMMaximization(Mat, n):
     print(pred[0])
     print("ACC: " + str((pred[1])))
     acc["EXP" + str(n)] = str((pred[1]))
-    tsnePlot(pred[0], n, Mat, 'EXP')
+
+    valLP, valVt = confusionMatrix(pred[0], labels)
+    accBoth['CURE' + str(n)] = (valVt, valLP)
+
+    #tsnePlot(pred[0], n, Mat, 'EXP')
 
 # kmeans implemenation
 def kmeans(X, n):
@@ -89,6 +98,9 @@ def kmeans(X, n):
     print(pred)
     print("ACC: \n" + str(accuracy_score(pred, labels)))
     acc['KMeans' + str(n)] = accuracy_score(pred, labels)
+
+    valLP, valVt = confusionMatrix(pred, labels)
+    accBoth['CURE' + str(n)] = (valVt, valLP)
     #tsnePlot(pred, n, X, 'KMEAN')
     
 # spectarl implementation
@@ -103,6 +115,10 @@ def spect(input_data, n):
     print (pred[0])
     print("ACC: " + str((pred[1])))
     acc["SPECT" + str(n)] = str((pred[1]))
+
+    valLP, valVt = confusionMatrix(pred[0], labels)
+    accBoth['CURE' + str(n)] = (valVt, valLP)
+
     tsnePlot(pred[0], n, input_data, 'SPECT')
 
 
@@ -115,6 +131,8 @@ def birch(input_data, n, limite, branching):
     print(pred[0])
     print("ACC: " + str((pred[1])))
     acc["BIRCH" + str(n)] = str((pred[1]))
+    valLP, valVt = confusionMatrix(pred[0], labels)
+    accBoth['CURE' + str(n)] = (valVt, valLP)
     tsnePlot(pred[0], n, input_data, 'BIRCH')
 
 
@@ -146,21 +164,21 @@ def BFR(Mat, n, shape):
     print(dis)
     lisstd.append(std)
     listDis.append(dis)
-    print("Desviacion estandar del modelo:\n" + str(model.error()))
-    print("SSE del modelo:\n" + str(model.error(Mat)))
 
-    centers = pd.DataFrame(model.centers())
-    print(centers)
     pred = model.predict(Mat)
 
     print("ACC: " + str(accuracy_score(pred, labels)))
     acc['BFR' + str(n)] = accuracy_score(pred, labels)
+
+    valLP, valVt = confusionMatrix(pred, labels)
+    accBoth['CURE' + str(n)] = (valVt, valLP)
+
     print(pred)
 
     print(pred.shape)
     print(model)
 
-    tsnePlot(pred, n, Mat, 'raw')
+    tsnePlot(pred, n, Mat, 'BFR')
 
 # testing for finding best hiperparameters with brute force
 def OptimizationBruteForce():
@@ -223,6 +241,20 @@ def graphK(dist):
     plt.savefig("FinalCurvesK.png")
     plt.close()
 
+#Calculate confussion matrix and return ACC for specific value
+def confusionMatrix(prediction, trueLabels):
+
+    matriz= (confusion_matrix(prediction, trueLabels))
+    mat2=pd.DataFrame(matriz)
+    ColLP = mat2[0].sum()
+    ColVT = mat2[1].sum()
+
+    ValLP= matriz[0,0] /ColLP
+    ValVT = matriz[1,1]/ ColVT
+    return ValLP,ValVT
+
+
+
 
 if __name__ == '__main__':
 
@@ -234,15 +266,16 @@ if __name__ == '__main__':
     print(path)
 
     #Printing original dataset with original Labels
-    tsnePlot(labels.to_numpy().ravel(),2,matrix.to_numpy(),'raw')
+    #tsnePlot(labels.to_numpy().ravel(),2,matrix.to_numpy(),'raw')
     # Printing original dataset with original Labels
-    tsnePlot(labels3.to_numpy().ravel(), 3, matrix.to_numpy(), 'raw')
+    #tsnePlot(labels3.to_numpy().ravel(), 3, matrix.to_numpy(), 'raw')
 
     # Starting BFR tests so branch new test
     print("BFR TEST:\n")
     for i in range(2, 11):
         BFR(matrix, i, matrix.shape[1])
-    
+
+
     # Start kmenas Test
     print("K MEANS  TEST:\n")
     for i in range(2, 11):
@@ -273,3 +306,4 @@ if __name__ == '__main__':
 
     #Print of all ACC results
     print(acc)
+    print(accBoth)
