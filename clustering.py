@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import matplotlib.pylab as plt
 from sklearn.cluster import AgglomerativeClustering as cure
 import scipy.cluster.hierarchy as sch
@@ -68,6 +69,7 @@ def Cure(input_data, n):
 
     valLP, valVt = confusionMatrix(pred, labels)
     accBoth['CURE' + str(n)] = (valVt, valLP)
+    valuesConfussion(pred, labels)
 
     #tsnePlot(pred, n, input_data, 'CURE')
 
@@ -86,6 +88,7 @@ def ExpectationMMaximization(Mat, n):
 
     valLP, valVt = confusionMatrix(pred[0], labels)
     accBoth['CURE' + str(n)] = (valVt, valLP)
+    valuesConfussion(pred[0], labels)
 
     #tsnePlot(pred[0], n, Mat, 'EXP')
 
@@ -101,6 +104,7 @@ def kmeans(X, n):
 
     valLP, valVt = confusionMatrix(pred, labels)
     accBoth['CURE' + str(n)] = (valVt, valLP)
+    valuesConfussion(pred, labels)
     #tsnePlot(pred, n, X, 'KMEAN')
     
 # spectarl implementation
@@ -108,7 +112,7 @@ def spect(input_data, n):
     t=0
     d=0
     #random_state = 92% : 292 - 3107  - 4603 - 4634
-    spec_instance = SpectralClustering(n_clusters=n,random_state=3107,affinity='nearest_neighbors',n_neighbors=20,n_components=16)
+    spec_instance = SpectralClustering(n_clusters=n,random_state=3107,affinity='nearest_neighbors',n_neighbors=20, n_components=16)
     spec_instance.fit(input_data)
     pred = spec_instance.labels_
     pred = OptimizeInverse(pred,0,1)
@@ -119,6 +123,7 @@ def spect(input_data, n):
     valLP, valVt = confusionMatrix(pred[0], labels)
     accBoth['CURE' + str(n)] = (valVt, valLP)
 
+    valuesConfussion(pred[0],labels)
     tsnePlot(pred[0], n, input_data, 'SPECT')
 
 
@@ -133,7 +138,9 @@ def birch(input_data, n, limite, branching):
     acc["BIRCH" + str(n)] = str((pred[1]))
     valLP, valVt = confusionMatrix(pred[0], labels)
     accBoth['CURE' + str(n)] = (valVt, valLP)
-    tsnePlot(pred[0], n, input_data, 'BIRCH')
+
+    valuesConfussion(pred[0], labels)
+    #tsnePlot(pred[0], n, input_data, 'BIRCH')
 
 
 # Generate dendoram plot
@@ -173,12 +180,14 @@ def BFR(Mat, n, shape):
     valLP, valVt = confusionMatrix(pred, labels)
     accBoth['CURE' + str(n)] = (valVt, valLP)
 
+    valuesConfussion(pred, labels)
+
     print(pred)
 
     print(pred.shape)
     print(model)
 
-    tsnePlot(pred, n, Mat, 'BFR')
+    #tsnePlot(pred, n, Mat, 'BFR')
 
 # testing for finding best hiperparameters with brute force
 def OptimizationBruteForce():
@@ -253,6 +262,47 @@ def confusionMatrix(prediction, trueLabels):
     ValVT = matriz[1,1]/ ColVT
     return ValLP,ValVT
 
+def valuesConfussion(prediction, trueLabels):
+    print("\n AQUIIII \n")
+    matriz = (confusion_matrix(prediction, trueLabels))
+
+    FP = matriz.sum(axis=0) - np.diag(matriz)
+    FN = matriz.sum(axis=1) - np.diag(matriz)
+    TP = np.diag(matriz)
+    TN = matriz.sum() - (FP + FN + TP)
+
+    # Sensitivity, hit rate, recall, or true positive rate
+    TPR = TP / (TP + FN)
+    # Specificity or true negative rate
+    TNR = TN / (TN + FP)
+    # Precision or positive predictive value
+    PPV = TP / (TP + FP)
+    # Negative predictive value
+    NPV = TN / (TN + FN)
+    # Fall out or false positive rate
+    FPR = FP / (FP + TN)
+    # False negative rate
+    FNR = FN / (TP + FN)
+    # False discovery rate
+    FDR = FP / (TP + FP)
+
+    # Overall accuracy
+    ACC = (TP + TN) / (TP + FP + FN + TN)
+
+    print("FP:"+ str(FP))
+    print("FN:"+str(FN))
+    print("TP:"+str(TP))
+    print("FN:"+str(TN))
+    print("TPR:"+str(TPR))
+    print("TNR:"+str(TNR))
+    print("PPV:"+str(PPV))
+    print("NPV:"+str(NPV))
+    print("FPR:"+str(FPR))
+    print("FNR:"+str(FNR))
+    print("FDR:"+str(FDR))
+    print("ACC:"+str(ACC))
+
+    print("\n ACA \n")
 
 
 
@@ -272,35 +322,35 @@ if __name__ == '__main__':
 
     # Starting BFR tests so branch new test
     print("BFR TEST:\n")
-    for i in range(2, 11):
+    for i in range(2, 4):
         BFR(matrix, i, matrix.shape[1])
 
 
     # Start kmenas Test
     print("K MEANS  TEST:\n")
-    for i in range(2, 11):
+    for i in range(2, 4):
         kmeans(matrix, i)
 
     # Start Cure test
     print("CURE  TEST:\n")
-    for i in range(2, 11):
+    for i in range(2, 4):
         Cure(matrix, i)
 
     # Start Exp. Max test
     print("EXPECTATION MAXIMIZATION  TEST:\n")
-    for i in range(2, 11):
+    for i in range(2, 4):
         ExpectationMMaximization(matrix, i)
 
     # Start Spectral test
     print("SPECT  TEST:\n")
-    for i in range(2, 11):
+    for i in range(2, 4):
         spect(matrix, i)
 
     # Start Birch test
     print("BIRCH  TEST:\n")
 
 
-    for i in range(2, 11):
+    for i in range(2, 4):
         #Best hiperparameters for birch
         birch(matrix, i, 0.75, 53)
 
