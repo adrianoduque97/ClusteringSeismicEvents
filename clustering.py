@@ -20,6 +20,7 @@ distK = []
 distS = []
 acc = {}
 accBoth={}
+Tp={}
 # Lists used to plot the TSNE 2 teg
 colors = ['r', 'g', 'b', 'c', 'm', 'y', 'k', 'grey', 'orange', 'purple']
 markers = ['o', '^', 's', '.', ',', 'x', '+', 'v', 'd', '>']
@@ -67,9 +68,11 @@ def Cure(input_data, n):
     print("ACC: " + str(accuracy_score(pred, labels)))
     acc["CURE" + str(n)] = str(accuracy_score(pred, labels))
 
-    valLP, valVt = confusionMatrix(pred, labels)
-    accBoth['CURE' + str(n)] = (valVt, valLP)
-    valuesConfussion(pred, labels)
+    valLP, valVt, ACC = confusionMatrix(pred, labels)
+    accBoth['CURE' + str(n)] = (valVt, valLP, ACC)
+    TPR,TNR = valuesConfussion(pred, labels)
+    Tp['Cure'+str(n)]= TPR,TNR
+
 
     #tsnePlot(pred, n, input_data, 'CURE')
 
@@ -86,8 +89,8 @@ def ExpectationMMaximization(Mat, n):
     print("ACC: " + str((pred[1])))
     acc["EXP" + str(n)] = str((pred[1]))
 
-    valLP, valVt = confusionMatrix(pred[0], labels)
-    accBoth['CURE' + str(n)] = (valVt, valLP)
+    valLP, valVt, ACC = confusionMatrix(pred[0], labels)
+    accBoth['EXPT' + str(n)] = (valVt, valLP, ACC)
     valuesConfussion(pred[0], labels)
 
     #tsnePlot(pred[0], n, Mat, 'EXP')
@@ -102,9 +105,10 @@ def kmeans(X, n):
     print("ACC: \n" + str(accuracy_score(pred, labels)))
     acc['KMeans' + str(n)] = accuracy_score(pred, labels)
 
-    valLP, valVt = confusionMatrix(pred, labels)
-    accBoth['CURE' + str(n)] = (valVt, valLP)
-    valuesConfussion(pred, labels)
+    valLP, valVt, ACC = confusionMatrix(pred, labels)
+    accBoth['Kmeans' + str(n)] = (valVt, valLP, ACC)
+    TPR, TNR = valuesConfussion(pred, labels)
+    Tp['Kmeans' + str(n)] = TPR, TNR
     #tsnePlot(pred, n, X, 'KMEAN')
     
 # spectarl implementation
@@ -120,8 +124,8 @@ def spect(input_data, n):
     print("ACC: " + str((pred[1])))
     acc["SPECT" + str(n)] = str((pred[1]))
 
-    valLP, valVt = confusionMatrix(pred[0], labels)
-    accBoth['CURE' + str(n)] = (valVt, valLP)
+    valLP, valVt, ACC= confusionMatrix(pred[0], labels)
+    accBoth['SPECT' + str(n)] = (valVt, valLP, ACC)
 
     valuesConfussion(pred[0],labels)
     tsnePlot(pred[0], n, input_data, 'SPECT')
@@ -136,8 +140,8 @@ def birch(input_data, n, limite, branching):
     print(pred[0])
     print("ACC: " + str((pred[1])))
     acc["BIRCH" + str(n)] = str((pred[1]))
-    valLP, valVt = confusionMatrix(pred[0], labels)
-    accBoth['CURE' + str(n)] = (valVt, valLP)
+    valLP, valVt, ACC = confusionMatrix(pred[0], labels)
+    accBoth['BIRCH' + str(n)] = (valVt, valLP, ACC)
 
     valuesConfussion(pred[0], labels)
     #tsnePlot(pred[0], n, input_data, 'BIRCH')
@@ -177,10 +181,12 @@ def BFR(Mat, n, shape):
     print("ACC: " + str(accuracy_score(pred, labels)))
     acc['BFR' + str(n)] = accuracy_score(pred, labels)
 
-    valLP, valVt = confusionMatrix(pred, labels)
-    accBoth['CURE' + str(n)] = (valVt, valLP)
+    valLP, valVt, ACC = confusionMatrix(pred, labels)
+    accBoth['BFR' + str(n)] = (valVt, valLP, ACC)
 
-    valuesConfussion(pred, labels)
+    # valuesConfussion(pred, labels)
+    TPR, TNR = valuesConfussion(pred, labels)
+    Tp['BFR' + str(n)] = TPR, TNR
 
     print(pred)
 
@@ -260,7 +266,8 @@ def confusionMatrix(prediction, trueLabels):
 
     ValLP= matriz[0,0] /ColLP
     ValVT = matriz[1,1]/ ColVT
-    return ValLP,ValVT
+    ACC= (matriz[0,0]  + matriz[1,1]) /(ColLP+ColVT)
+    return ValLP,ValVT, ACC
 
 def valuesConfussion(prediction, trueLabels):
     print("\n AQUIIII \n")
@@ -304,6 +311,8 @@ def valuesConfussion(prediction, trueLabels):
 
     print("\n ACA \n")
 
+    return TPR, TNR
+
 
 
 if __name__ == '__main__':
@@ -322,38 +331,39 @@ if __name__ == '__main__':
 
     # Starting BFR tests so branch new test
     print("BFR TEST:\n")
-    for i in range(2, 4):
+    for i in range(2, 10):
         BFR(matrix, i, matrix.shape[1])
 
 
     # Start kmenas Test
     print("K MEANS  TEST:\n")
-    for i in range(2, 4):
+    for i in range(2, 10):
         kmeans(matrix, i)
 
     # Start Cure test
     print("CURE  TEST:\n")
-    for i in range(2, 4):
+    for i in range(2, 10):
         Cure(matrix, i)
 
-    # Start Exp. Max test
-    print("EXPECTATION MAXIMIZATION  TEST:\n")
-    for i in range(2, 4):
-        ExpectationMMaximization(matrix, i)
-
-    # Start Spectral test
-    print("SPECT  TEST:\n")
-    for i in range(2, 4):
-        spect(matrix, i)
-
-    # Start Birch test
-    print("BIRCH  TEST:\n")
-
-
-    for i in range(2, 4):
-        #Best hiperparameters for birch
-        birch(matrix, i, 0.75, 53)
+    # # Start Exp. Max test
+    # print("EXPECTATION MAXIMIZATION  TEST:\n")
+    # for i in range(2, 4):
+    #     ExpectationMMaximization(matrix, i)
+    #
+    # # Start Spectral test
+    # print("SPECT  TEST:\n")
+    # for i in range(2, 4):
+    #     spect(matrix, i)
+    #
+    # # Start Birch test
+    # print("BIRCH  TEST:\n")
+    #
+    #
+    # for i in range(2, 4):
+    #     #Best hiperparameters for birch
+    #     birch(matrix, i, 0.75, 53)
 
     #Print of all ACC results
     print(acc)
     print(accBoth)
+    # print(Tp)
