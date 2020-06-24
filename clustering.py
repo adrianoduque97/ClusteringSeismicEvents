@@ -12,6 +12,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.mixture import GaussianMixture as expectationMaximization
 from sklearn.cluster import SpectralClustering
 from sklearn.cluster import Birch
+from scipy.stats import wilcoxon
 
 # Complement Lists used to manage the data
 lisstd = []
@@ -21,6 +22,7 @@ distS = []
 acc = {}
 accBoth={}
 Tp={}
+kmeansArr=[]
 # Lists used to plot the TSNE 2 teg
 colors = ['r', 'g', 'b', 'c', 'm', 'y', 'k', 'grey', 'orange', 'purple']
 markers = ['o', '^', 's', '.', ',', 'x', '+', 'v', 'd', '>']
@@ -109,6 +111,8 @@ def kmeans(X, n):
     accBoth['Kmeans' + str(n)] = (valVt, valLP, ACC)
     TPR, TNR = valuesConfussion(pred, labels)
     Tp['Kmeans' + str(n)] = TPR, TNR
+
+    kmeansArr.append(accuracy_score(pred, labels))
     #tsnePlot(pred, n, X, 'KMEAN')
     
 # spectarl implementation
@@ -296,25 +300,42 @@ def valuesConfussion(prediction, trueLabels):
     # Overall accuracy
     ACC = (TP + TN) / (TP + FP + FN + TN)
 
-    print("FP:"+ str(FP))
-    print("FN:"+str(FN))
-    print("TP:"+str(TP))
-    print("FN:"+str(TN))
-    print("TPR:"+str(TPR))
-    print("TNR:"+str(TNR))
-    print("PPV:"+str(PPV))
-    print("NPV:"+str(NPV))
-    print("FPR:"+str(FPR))
-    print("FNR:"+str(FNR))
-    print("FDR:"+str(FDR))
-    print("ACC:"+str(ACC))
+    # print("FP:"+ str(FP))
+    # print("FN:"+str(FN))
+    # print("TP:"+str(TP))
+    # print("FN:"+str(TN))
+    # print("TPR:"+str(TPR))
+    # print("TNR:"+str(TNR))
+    # print("PPV:"+str(PPV))
+    # print("NPV:"+str(NPV))
+    # print("FPR:"+str(FPR))
+    # print("FNR:"+str(FNR))
+    # print("FDR:"+str(FDR))
+    # print("ACC:"+str(ACC))
 
     print("\n ACA \n")
 
     return TPR, TNR
 
+def wilcTest(vectorA, vectorB):
+
+    statistic, p = wilcoxon(vectorA,vectorB, zero_method='zsplit',)# alternative='greater')
+
+    return statistic,p
+
+def testWilcoTres():
+    kmeans2 = pd.read_csv("kmeans2.csv").to_numpy().ravel()
+    bfr2 = pd.read_csv("bfr2.csv").to_numpy().ravel()
+    cure2 = pd.read_csv("cure2.csv").to_numpy().ravel()
+    stat, p = wilcTest(kmeans2, bfr2)
+    print("WILCOXON TEST")
+    print(f'kMeans VS BFR\n Statistics: {stat}\n P value: {decimal_str(p,7)}')
+    stat2, p2 = wilcTest(bfr2, cure2)
+    print(f'CURE VS BFR\n Statistics: {stat2}\n P value: {round(p2,5)*10}')
 
 
+def decimal_str(x: float, decimals: int = 10) -> str:
+    return format(x, f".{decimals}f").lstrip().rstrip('0')
 if __name__ == '__main__':
 
     matrix = pd.read_csv("features_Modified.csv", delimiter=',', header=None)
@@ -323,6 +344,7 @@ if __name__ == '__main__':
     labels3= pd.read_csv('LABELS3.csv', header=None)
 
     print(path)
+    testWilcoTres()
 
     #Printing original dataset with original Labels
     #tsnePlot(labels.to_numpy().ravel(),2,matrix.to_numpy(),'raw')
@@ -331,39 +353,36 @@ if __name__ == '__main__':
 
     # Starting BFR tests so branch new test
     print("BFR TEST:\n")
-    for i in range(2, 10):
+    for i in range(3, 4):
         BFR(matrix, i, matrix.shape[1])
 
 
     # Start kmenas Test
     print("K MEANS  TEST:\n")
-    for i in range(2, 10):
+    for i in range(3, 4):
         kmeans(matrix, i)
 
     # Start Cure test
     print("CURE  TEST:\n")
-    for i in range(2, 10):
+    for i in range(3, 4):
         Cure(matrix, i)
 
-    # # Start Exp. Max test
-    # print("EXPECTATION MAXIMIZATION  TEST:\n")
-    # for i in range(2, 4):
-    #     ExpectationMMaximization(matrix, i)
-    #
-    # # Start Spectral test
-    # print("SPECT  TEST:\n")
-    # for i in range(2, 4):
-    #     spect(matrix, i)
-    #
-    # # Start Birch test
-    # print("BIRCH  TEST:\n")
-    #
-    #
-    # for i in range(2, 4):
-    #     #Best hiperparameters for birch
-    #     birch(matrix, i, 0.75, 53)
+    # Start Exp. Max test
+    print("EXPECTATION MAXIMIZATION  TEST:\n")
+    for i in range(2, 4):
+        ExpectationMMaximization(matrix, i)
+
+    # Start Spectral test
+    print("SPECT  TEST:\n")
+    for i in range(2, 4):
+        spect(matrix, i)
+
+    # Start Birch test
+    print("BIRCH  TEST:\n")
+    for i in range(2, 4):
+        #Best hiperparameters for birch
+        birch(matrix, i, 0.75, 53)
 
     #Print of all ACC results
     print(acc)
     print(accBoth)
-    # print(Tp)
