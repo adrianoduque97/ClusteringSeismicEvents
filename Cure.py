@@ -10,7 +10,7 @@ import math
 import matplotlib.pylab as plt
 import sys
 
-warnings.filterwarnings("ignore")
+warnings.filterwarnings("ignore")    
 
 colors = ['r','g', 'b', 'c', 'm', 'y', 'k', 'grey', 'orange', 'purple']
 markers = ['o','^','s','.', ',', 'x', '+', 'v', 'd','>']
