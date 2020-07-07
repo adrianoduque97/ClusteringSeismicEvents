@@ -8,3 +8,5 @@ Algorithms implemented:
     - CURE (Agglomerative Clustering)
     - Spectral Co Clustering
     - BIRCH
+# Usage
+python clustering.py
