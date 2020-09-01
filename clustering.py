@@ -1,3 +1,4 @@
+import numpy
 import pandas as pd
 import numpy as np
 import matplotlib.pylab as plt
@@ -13,6 +14,7 @@ from sklearn.mixture import GaussianMixture as expectationMaximization
 from sklearn.cluster import SpectralClustering
 from sklearn.cluster import Birch
 from scipy.stats import wilcoxon
+from sklearn.cluster import AgglomerativeClustering
 
 # Complement Lists used to manage the data
 lisstd = []
@@ -23,6 +25,7 @@ acc = {}
 accBoth={}
 Tp={}
 kmeansArr=[]
+WBACCC=[]
 # Lists used to plot the TSNE 2 teg
 colors = ['r', 'g', 'b', 'c', 'm', 'y', 'k', 'grey', 'orange', 'purple']
 markers = ['o', '^', 's', '.', ',', 'x', '+', 'v', 'd', '>']
@@ -68,14 +71,12 @@ def Cure(input_data, n):
     pred = cure_instance.labels_
     print(pred)
     print("ACC: " + str(accuracy_score(pred, labels)))
-    acc["CURE" + str(n)] = str(accuracy_score(pred, labels))
+    acc["CURE" ] = str(accuracy_score(pred, labels))
 
     valLP, valVt, ACC = confusionMatrix(pred, labels)
     accBoth['CURE' + str(n)] = (valVt, valLP, ACC)
     TPR,TNR = valuesConfussion(pred, labels)
     Tp['Cure'+str(n)]= TPR,TNR
-
-
     #tsnePlot(pred, n, input_data, 'CURE')
 
 
@@ -199,6 +200,22 @@ def BFR(Mat, n, shape):
 
     #tsnePlot(pred, n, Mat, 'BFR')
 
+# kmeans implemenation
+def agglomerative(X, n):
+    aglomerative = AgglomerativeClustering(n_clusters=n, affinity='l1', linkage="complete").fit(X)
+
+    pred = aglomerative.labels_
+    print(pred)
+    print("ACC: \n" + str(accuracy_score(pred, labels)))
+    acc['Agglomerative' + str(n)] = accuracy_score(pred, labels)
+
+    # valLP, valVt, ACC = confusionMatrix(pred, labels)
+    # accBoth['Kmeans' + str(n)] = (valVt, valLP, ACC)
+    # TPR, TNR = valuesConfussion(pred, labels)
+    # Tp['Kmeans' + str(n)] = TPR, TNR
+
+    tsnePlot(pred, n, X, 'AGLOME')
+
 # testing for finding best hiperparameters with brute force
 def OptimizationBruteForce():
     for branch in range(2,100):
@@ -299,19 +316,24 @@ def valuesConfussion(prediction, trueLabels):
 
     # Overall accuracy
     ACC = (TP + TN) / (TP + FP + FN + TN)
+    bAcc = (TPR+TNR)/2
 
-    # print("FP:"+ str(FP))
-    # print("FN:"+str(FN))
-    # print("TP:"+str(TP))
-    # print("FN:"+str(TN))
-    # print("TPR:"+str(TPR))
-    # print("TNR:"+str(TNR))
-    # print("PPV:"+str(PPV))
-    # print("NPV:"+str(NPV))
-    # print("FPR:"+str(FPR))
-    # print("FNR:"+str(FNR))
-    # print("FDR:"+str(FDR))
-    # print("ACC:"+str(ACC))
+
+    print("FP:"+ str(FP))
+    print("FN:"+str(FN))
+    print("TP:"+str(TP))
+    print("FN:"+str(TN))
+    print("TPR:"+str(TPR))
+    print("TNR:"+str(TNR))
+    print("PPV:"+str(PPV))
+    print("NPV:"+str(NPV))
+    print("FPR:"+str(FPR))
+    print("FNR:"+str(FNR))
+    print("FDR:"+str(FDR))
+    print("ACC:"+str(ACC))
+    print("BACC:" + str(bAcc))
+    print(f"WBACC {bAcc.sum()/bAcc.size}")
+    WBACCC.append(bAcc.sum()/bAcc.size)
 
     print("\n ACA \n")
 
@@ -344,7 +366,7 @@ if __name__ == '__main__':
     labels3= pd.read_csv('LABELS3.csv', header=None)
 
     print(path)
-    testWilcoTres()
+    #testWilcoTres()
 
     #Printing original dataset with original Labels
     #tsnePlot(labels.to_numpy().ravel(),2,matrix.to_numpy(),'raw')
@@ -352,37 +374,47 @@ if __name__ == '__main__':
     #tsnePlot(labels3.to_numpy().ravel(), 3, matrix.to_numpy(), 'raw')
 
     # Starting BFR tests so branch new test
-    print("BFR TEST:\n")
-    for i in range(3, 4):
-        BFR(matrix, i, matrix.shape[1])
+    # print("BFR TEST:\n")
+    # for i in range(2, 11):
+    #     BFR(matrix, i, matrix.shape[1])
 
+    # # Start Exp. Max test
+    # print("EXPECTATION MAXIMIZATION  TEST:\n")
+    # for i in range(2,11):
+    #     ExpectationMMaximization(matrix, i)
 
-    # Start kmenas Test
-    print("K MEANS  TEST:\n")
-    for i in range(3, 4):
-        kmeans(matrix, i)
+    # # Start kmenas Test
+    # print("K MEANS  TEST:\n")
+    # for i in range(2, 11):
+    #     kmeans(matrix,i)
 
     # Start Cure test
-    print("CURE  TEST:\n")
-    for i in range(3, 4):
-        Cure(matrix, i)
+    # print("CURE  TEST:\n")
+    # for i in range(2, 11):
+    #     Cure(matrix,i)
+    #
+    # # Start Exp. Max test
+    # print("EXPECTATION MAXIMIZATION  TEST:\n")
+    # for i in range(2, 4):
+    #     ExpectationMMaximization(matrix, i)
+    #
+    # # Start Spectral test
+    # print("SPECT  TEST:\n")
+    # for i in range(2, 11):
+    #     spect(matrix, i)
+    #
+    # # Start Birch test
+    # print("BIRCH  TEST:\n")
+    # for i in range(2, 11):
+    #     #Best hiperparameters for birch
+    #     birch(matrix, i, 0.75, 53)
 
-    # Start Exp. Max test
-    print("EXPECTATION MAXIMIZATION  TEST:\n")
-    for i in range(2, 4):
-        ExpectationMMaximization(matrix, i)
+    # #Print of all ACC results
 
-    # Start Spectral test
-    print("SPECT  TEST:\n")
-    for i in range(2, 4):
-        spect(matrix, i)
-
-    # Start Birch test
-    print("BIRCH  TEST:\n")
-    for i in range(2, 4):
-        #Best hiperparameters for birch
-        birch(matrix, i, 0.75, 53)
-
-    #Print of all ACC results
+    # Start Agglomerative test
+    print("AGGLOMERATIVE  TEST:\n")
+    for i in range(2, 10):
+        agglomerative(matrix, i)
     print(acc)
     print(accBoth)
+    # numpy.savetxt("SpectWbAcc.csv", WBACCC,fmt='%f', delimiter=",")
