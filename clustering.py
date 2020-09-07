@@ -15,6 +15,7 @@ from sklearn.cluster import SpectralClustering
 from sklearn.cluster import Birch
 from scipy.stats import wilcoxon
 from sklearn.cluster import AgglomerativeClustering
+from sklearn.cluster import MiniBatchKMeans
 
 # Complement Lists used to manage the data
 lisstd = []
@@ -216,6 +217,21 @@ def agglomerative(X, n):
 
     tsnePlot(pred, n, X, 'AGLOME')
 
+def mini(X, n):
+    mini = MiniBatchKMeans(n_clusters=n, max_iter=10000, max_no_improvement=40).fit(X)
+    print(mini.random_state)
+    pred = mini.labels_
+    print(pred)
+    print("ACC: \n" + str(accuracy_score(pred, labels)))
+    acc['Mini' + str(n)] = accuracy_score(pred, labels)
+
+    # valLP, valVt, ACC = confusionMatrix(pred, labels)
+    # accBoth['Kmeans' + str(n)] = (valVt, valLP, ACC)
+    # TPR, TNR = valuesConfussion(pred, labels)
+    # Tp['Kmeans' + str(n)] = TPR, TNR
+
+    tsnePlot(pred, n, X, 'MINI')
+
 # testing for finding best hiperparameters with brute force
 def OptimizationBruteForce():
     for branch in range(2,100):
@@ -411,10 +427,16 @@ if __name__ == '__main__':
 
     # #Print of all ACC results
 
-    # Start Agglomerative test
+    # # Start Agglomerative test
     print("AGGLOMERATIVE  TEST:\n")
     for i in range(2, 10):
         agglomerative(matrix, i)
+
+    # Start Agglomerative test
+    # print("MINI  TEST:\n")
+    # for i in range(2, 10):
+    #     mini(matrix, i)
+
     print(acc)
     print(accBoth)
     # numpy.savetxt("SpectWbAcc.csv", WBACCC,fmt='%f', delimiter=",")
