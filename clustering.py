@@ -210,12 +210,12 @@ def agglomerative(X, n):
     print("ACC: \n" + str(accuracy_score(pred, labels)))
     acc['Agglomerative' + str(n)] = accuracy_score(pred, labels)
 
-    # valLP, valVt, ACC = confusionMatrix(pred, labels)
-    # accBoth['Kmeans' + str(n)] = (valVt, valLP, ACC)
-    # TPR, TNR = valuesConfussion(pred, labels)
-    # Tp['Kmeans' + str(n)] = TPR, TNR
+    valLP, valVt, ACC = confusionMatrix(pred, labels)
+    accBoth['Agglo' + str(n)] = (valVt, valLP, ACC)
+    TPR, TNR = valuesConfussion(pred, labels)
+    Tp['Agglo' + str(n)] = TPR, TNR
 
-    tsnePlot(pred, n, X, 'AGLOME')
+    # tsnePlot(pred, n, X, 'AGLOME')
 
 def mini(X, n):
     mini = MiniBatchKMeans(n_clusters=n, max_iter=10000, max_no_improvement=40).fit(X)
@@ -429,7 +429,7 @@ if __name__ == '__main__':
 
     # # Start Agglomerative test
     print("AGGLOMERATIVE  TEST:\n")
-    for i in range(2, 10):
+    for i in range(2, 11):
         agglomerative(matrix, i)
 
     # Start Agglomerative test
@@ -439,4 +439,5 @@ if __name__ == '__main__':
 
     print(acc)
     print(accBoth)
+    print(Tp)
     # numpy.savetxt("SpectWbAcc.csv", WBACCC,fmt='%f', delimiter=",")
